@@ -6,6 +6,7 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 steps:
+  # -------- BUILD IMAGES --------
   - name: gcr.io/cloud-builders/docker
     id: Build-Frontend
     args:
@@ -14,13 +15,18 @@ steps:
       - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend:latest
       - src/frontend
 
-  # repeat for other services...
+  # (add other services the same way)
 
+  # -------- DEPLOY TO GKE --------
   - name: gcr.io/cloud-builders/kubectl
     id: Deploy-To-GKE
-    args: ["apply", "-f", "release/kubernetes-manifests.yaml"]
+    args:
+      - apply
+      - -f
+      - release/kubernetes-manifests.yaml
     env:
       - CLOUDSDK_COMPUTE_REGION=${_REGION}
       - CLOUDSDK_CONTAINER_CLUSTER=online-boutique
 
 images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend
